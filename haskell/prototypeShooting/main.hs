@@ -33,11 +33,14 @@ quitGame (GameStruct {gameWindow = w}) = do
   freeSurface w
   quit
 
-updateGame g0@(GameStruct {}) = do
+updateGame g0@(GameStruct {keyState = key}) = do
   g1 <- getEvents g0
   let g2 = stepGame g1
   render g2
-  updateGame g2
+  if isQuit then return ()
+            else updateGame g2
+    where
+      isQuit = member SDLK_q key
 
 getEvents g0@(GameStruct {keyState = sk}) = do
   e <- pollEvent
