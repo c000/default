@@ -3,6 +3,7 @@ import Data.Maybe (catMaybes)
 import System.IO (hFlush, stdout)
 
 import Graphics.UI.SDL as SDL
+import Graphics.UI.SDL.Mixer as MIX
 
 import qualified Resources as R
 
@@ -19,22 +20,32 @@ data Game = GameStruct
   , player :: (Int, Int)
   , images :: R.Images
   , frames :: Int
+  , bgm :: Music
   }
 
 initGame (GameConfig w h) = do
   SDL.init [InitEverything]
+  MIX.openAudio 44100 AudioS16Sys 2 1024
+  music <- R.playBGM
   window <- setVideoMode w h 16 [HWSurface, DoubleBuf]
   img <- R.loadImages
   return $ GameStruct
     { gameWindow = window
     , keyState = empty
-    , player = (0, 0)
+    , player = (200, 500)
     , images = img
     , frames = 0
+    , bgm = music
     }
 
-quitGame (GameStruct {gameWindow = w}) = do
+quitGame (GameStruct { gameWindow = w
+                     , images = imgs
+                     , bgm = music
+                     }) = do
   freeSurface w
+  R.freeImages imgs
+  R.stopBGM music
+  MIX.closeAudio
   quit
 
 updateGame g0@(GameStruct {keyState = key}) = do
@@ -87,7 +98,9 @@ render
                  , frames = f
                  })
   = do bgRendering
-       True <- blitSurface p Nothing w (Just $ Rect px py 0 0)
+       red <- mapRGB windowPixelFormat maxBound 0 0
+       True <- blitSurface p Nothing w (Just $ Rect (px-16) (py-16) 0 0)
+       True <- fillRect w (Just $ Rect (px-1) (py-1) 3 3) red
        SDL.flip w
        return g0
   where
@@ -97,6 +110,7 @@ render
       True <- blitSurface bg Nothing w (Just $ Rect 0  positionY      0 0)
       True <- blitSurface bg Nothing w (Just $ Rect 0 (positionY+300) 0 0)
       return ()
+    windowPixelFormat = surfaceGetPixelFormat w
 
 main = do
   game <- initGame defaultConfig

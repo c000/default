@@ -2,6 +2,7 @@ module Resources where
 
 import Graphics.UI.SDL
 import Graphics.UI.SDL.Image
+import Graphics.UI.SDL.Mixer
 
 data Images = Images
   { backGround
@@ -36,3 +37,24 @@ loadImages = do
     , playerBullet = pb
     , strongEnemy = se
     }
+
+freeImages (Images bg e lbr p wb b lb pb se) = do
+  freeSurface bg
+  freeSurface e
+  freeSurface lbr
+  freeSurface p
+  freeSurface wb
+  freeSurface b
+  freeSurface lb
+  freeSurface pb
+  freeSurface se
+  return ()
+
+playBGM = do
+  music <- loadMUS "PrototypeShootingContent/Audio/BGM.WAV"
+  playMusic music (-1)
+  return music
+
+stopBGM music = do
+  haltMusic
+  freeMusic music
