@@ -1,5 +1,6 @@
-import Data.Set
+import Data.Functor
 import Data.Maybe (catMaybes)
+import Data.Set
 import System.IO (hFlush, stdout)
 
 import Graphics.UI.SDL as SDL
@@ -49,11 +50,10 @@ quitGame (GameStruct { gameWindow = w
   quit
 
 updateGame g0@(GameStruct {keyState = key}) = do
-  g1 <- getEvents g0
-  let g2 = stepGame g1
-  render g2
+  g1 <- stepGame <$> getEvents g0
+  render g1
   if isQuit then return ()
-            else updateGame g2
+            else updateGame g1
     where
       isQuit = member SDLK_q key
 
@@ -101,6 +101,7 @@ render
        red <- mapRGB windowPixelFormat maxBound 0 0
        True <- blitSurface p Nothing w (Just $ Rect (px-16) (py-16) 0 0)
        True <- fillRect w (Just $ Rect (px-1) (py-1) 3 3) red
+    -- delay 1000
        SDL.flip w
        return g0
   where
