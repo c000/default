@@ -1,3 +1,4 @@
+import Control.Parallel.Strategies
 import System
 import Debug.Trace
 
@@ -6,8 +7,8 @@ ackList = [[ack m n | n <- [0..]] | m <- [0..]]
   where
     debugAck m n = trace ("("++show m++","++show n++")") ack m n
     ack m n | m == 0    = n + 1
-            | n == 0    = ackList !! (m - 1) !! 1
-            | otherwise = ackList !! (m - 1) !! (ackList !! m !! (n - 1))
+            | n == 0    = ackList !! (m - 1) !! 1 `using` rseq
+            | otherwise = ackList !! (m - 1) !! (ackList !! m !! (n - 1) `using` rseq) `using` rseq
 
 main = do
   args <- getArgs
