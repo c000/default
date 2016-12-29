@@ -1,0 +1,6 @@
+[package]
+name = "iter-test"
+version = "0.1.0"
+authors = ["c000 <c255xff@gmail.com>"]
+
+[dependencies]
