@@ -1,0 +1,7 @@
+[package]
+name = "murmur-sqlite"
+version = "0.1.0"
+authors = ["c000 <c255xff@gmail.com>"]
+
+[dependencies]
+rusqlite = "0.7.3"
